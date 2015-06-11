@@ -1,0 +1,138 @@
+#!/usr/bin/python
+import csv
+from copy import copy
+import sys
+import pickle
+sys.path.append("../tools/")
+
+from feature_format import featureFormat, targetFeatureSplit
+from tester import test_classifier, dump_classifier_and_data
+
+import cleaner
+### Task 1: Select what features you'll use.
+### features_list is a list of strings, each of which is a feature name.
+### The first feature must be "poi".
+
+target_label = 'poi'
+
+features_list_email =  ['from_messages',
+    'from_poi_to_this_person',
+    'from_this_person_to_poi',
+    'shared_receipt_with_poi',
+    'to_messages'] 
+
+features_list_financial = [
+    'bonus',
+    'deferral_payments',
+    'deferred_income',
+    'director_fees',
+    'exercised_stock_options',
+    'expenses',
+    'loan_advances',
+    'long_term_incentive',
+    'other',
+    'restricted_stock',
+    'restricted_stock_deferred',
+    'salary',
+    'total_payments',
+    'total_stock_value',
+ ]
+
+final_features = [target_label]+features_list_email+features_list_financial
+
+### Load the dictionary containing the dataset
+data_dict = pickle.load(open("final_project_dataset.pkl", "r") )
+
+#cleaner.create_csv('data.csv',data_dict)
+
+### Task 2: Remove outliers
+outlier_keys = ['TOTAL', 'THE TRAVEL AGENCY IN THE PARK', 'LOCKHART EUGENE E']
+cleaner.remove_keys(data_dict,outlier_keys)
+
+my_dataset = copy(data_dict)
+my_features = copy(final_features)
+
+#get k best features
+num_features = 8
+best_features = cleaner.get_k_best(my_dataset, my_features, num_features)
+my_features = [target_label] + best_features.keys()+['shared_receipt_with_poi']
+
+#
+# add two new features
+cleaner.add_financial_aggregate(my_dataset, my_features)
+cleaner.add_email_interaction(my_dataset, my_features)
+
+
+# print features
+print "{0} selected features: {1}\n".format(len(my_features) - 1, my_features[1:])
+
+
+
+### Extract features and labels from dataset for local testing
+data = featureFormat(my_dataset, my_features, sort_keys = True)
+labels, features = targetFeatureSplit(data)
+
+# scale features via min-max
+from sklearn import preprocessing
+scaler = preprocessing.MinMaxScaler()
+features = scaler.fit_transform(features)
+
+### Task 4: Try a varity of classifiers
+### Please name your classifier clf for easy export below.
+### Note that if you want to do PCA or other multi-stage operations,
+### you'll need to use Pipelines. For more info:
+### http://scikit-learn.org/stable/modules/pipeline.html
+
+
+from sklearn.linear_model import LogisticRegression
+l_clf = None
+
+# brute-force parameter optimizer; uncomment to run
+# TODO: use GridSearchCV
+# k = 0
+# best_combo = None
+# max_exponent = 21
+# for i in range(0, max_exponent, 3):
+#     for j in range(0, max_exponent, 3):
+#         print "i: {0}, j: {1}".format(i, j)
+#         l_clf = LogisticRegression(C=10**i, tol=10**-j, class_weight='auto')
+#         results = evaluate.evaluate_clf(l_clf, features, labels)
+#         if sum(results) > k:
+#             k = sum(results)
+#             best_combo = (i, j)
+# l_clf = LogisticRegression(C=10**i, tol=10**-j)
+
+if not l_clf:
+    l_clf = LogisticRegression(C=10**18, tol=10**-21)
+
+from sklearn.naive_bayes import GaussianNB
+gauss_clf = GaussianNB()    
+
+### K-means Clustering
+from sklearn.cluster import KMeans
+k_clf = KMeans(n_clusters=2, tol=0.001)
+
+
+#Support Vector Machine Classifier
+from sklearn.svm import SVC
+s_clf = SVC(kernel='rbf', C=1000)
+
+#Random Forest
+from sklearn.ensemble import RandomForestClassifier
+rf_clf = RandomForestClassifier()
+
+#Stochastic Gradient Descent - Logistic Regression
+from sklearn.linear_model import SGDClassifier
+g_clf = SGDClassifier(loss='log')
+
+
+### Selected Classifiers Evaluation
+cleaner.evaluate_clf(l_clf, features, labels)
+cleaner.evaluate_clf(k_clf, features, labels)
+
+test_classifier(k_clf, my_dataset, my_features)
+
+### Dump your classifier, dataset, and features_list so 
+### anyone can run/check your results.
+
+dump_classifier_and_data(l_clf, my_dataset, my_features)
