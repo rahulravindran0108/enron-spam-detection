@@ -51,16 +51,17 @@ cleaner.remove_keys(data_dict,outlier_keys)
 
 my_dataset = copy(data_dict)
 my_features = copy(final_features)
+cleaner.add_financial_aggregate(my_dataset, my_features)
+cleaner.add_email_interaction(my_dataset, my_features)
 
 #get k best features
-num_features = 8
+num_features = 11
 best_features = cleaner.get_k_best(my_dataset, my_features, num_features)
-my_features = [target_label] + best_features.keys()+['shared_receipt_with_poi']
+my_features = [target_label] + best_features.keys()+['email_interaction']
 
 #
 # add two new features
-cleaner.add_financial_aggregate(my_dataset, my_features)
-cleaner.add_email_interaction(my_dataset, my_features)
+
 
 
 # print features
@@ -96,11 +97,11 @@ l_clf = None
 #     for j in range(0, max_exponent, 3):
 #         print "i: {0}, j: {1}".format(i, j)
 #         l_clf = LogisticRegression(C=10**i, tol=10**-j, class_weight='auto')
-#         results = evaluate.evaluate_clf(l_clf, features, labels)
+#         results = cleaner.evaluate_clf(l_clf, features, labels)
 #         if sum(results) > k:
 #             k = sum(results)
 #             best_combo = (i, j)
-# l_clf = LogisticRegression(C=10**i, tol=10**-j)
+#      l_clf = LogisticRegression(C=10**i, tol=10**-j)
 
 if not l_clf:
     l_clf = LogisticRegression(C=10**18, tol=10**-21)
@@ -110,7 +111,7 @@ gauss_clf = GaussianNB()
 
 ### K-means Clustering
 from sklearn.cluster import KMeans
-k_clf = KMeans(n_clusters=2, tol=0.001)
+k_clf = KMeans(n_clusters=2, tol=0.01)
 
 
 #Support Vector Machine Classifier
@@ -128,11 +129,12 @@ g_clf = SGDClassifier(loss='log')
 
 ### Selected Classifiers Evaluation
 cleaner.evaluate_clf(l_clf, features, labels)
-cleaner.evaluate_clf(k_clf, features, labels)
+#cleaner.evaluate_clf(k_clf, features, labels)
 
-test_classifier(k_clf, my_dataset, my_features)
+#test_classifier(k_clf, my_dataset, my_features)
 
 ### Dump your classifier, dataset, and features_list so 
 ### anyone can run/check your results.
-
-dump_classifier_and_data(l_clf, my_dataset, my_features)
+pickle.dump(l_clf, open("my_classifier.pkl", "w"))
+pickle.dump(my_dataset, open("my_dataset.pkl", "w"))
+pickle.dump(my_features, open("my_feature_list.pkl", "w"))

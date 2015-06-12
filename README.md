@@ -1,6 +1,4 @@
----
-output: pdf_document
----
+
 ## Identifying Fraud from Enron Emails and Financial Data
 
 ### Introduction
@@ -43,26 +41,36 @@ To pick best features, I used the select k best features of scikit learn. After 
 'total_payments' - 8.77
 
 ```
-These features did not include any email features. Therefore I decided to go with shared_receipt_with_poi.
+These features did not include any email features. Therefore I decided to go with my own created feature i.e email interaction
 
-In order to include two more features that would represent an aggregate calue for both financial and email features, I decided to add two more features, they are as follows:
+In order to include one more features that would represent an aggregate calue for both financial, I decided to go ahead with the two features above
 
 - email_interaction_ratio: which was a ratio of the total number of emails to and from a POI to the total emails sent or received.  
 - financial_aggregate: This was the combined sum of exercised_stock_options, salary, and total_stock_value. This captured both liquid and semi solid wealth an individual has. 
 
-I scaled all features using a min-max scaler. This ensures features are evenly balanced and overcomes the disparity due to the units of financial and email features.
+After testing the k value for financial aggregate I got the following:
+15.971747347749965
+Thus it is one of the significant features contributing to precision and recall.
 
-Thus after this step we have a total of 11 features to go ahead with.
+Email interaction however did not crop up in either the top 10 or top 8 features. However, on trials with the algorithm, there was slight increase in both gaussian NB and Logistic Regression
+
+I scaled all features using a min-max scaler. This ensures features are evenly balanced and overcomes the disparity due to the units of financial and email features. For classifiers such as Gaussian NB and rf there was no improvement noted post using feature scalling. However it played a pivotal role in Logistic and K-means classifier which forms the central theme for the report.
+
+I used a total of 12 features for Logistic Regression, 8 for K-means clustering.
 
 > What algorithm did you end up using?  What other one(s) did you try?
 
 After having performed various ml related projects during my undergraduate studies, a two class problem usually is best for logistic regression and K-means clustering. K-means clustering with PCA and mahalanobis distance provides a very fortified technique for two class detection. However, I went with logistic regression as my final algorithm.
 
-I tried several algorithms, with a K-means clustering algorithm performing reasonably sufficient. I also tested a support vector machine, a random forest classifier, and stochastic gradient descent. The best reults I got were from logistic regressor.
+I tried several algorithms, with a K-means clustering algorithm performing reasonably sufficient and gaussian NB performed event better than expected. I also tested a support vector machine, a random forest classifier, and stochastic gradient descent. The best reults I got were from logistic regressor and Gaussian NB.
+
+I looked at famous algorithms for two classifier problems and NB was one of the top ones.
 
 following were the parameters I tuned:
 - Logistic regression: C (inverse regularization parameter), tol (tolerance), and class_weight (over/undersampling)
 - K-means clustering: tol
+
+I will explain why parameter tuning is important: Simply put most ml algorithms have a learning rate that is used to fit the dataset. Using such parameter we can either learn fat and properly or never get to the answer in some cases of gradient descent. Parameter tuning is used for this puprose. It defines the learning rate, tolerance to outliers and other parameters that are specific to algorithms used.
 
 K-means clustering was initialized with K (n_clusters) of 2 to represent POI and non-POI clusters. It performed well with the 11 set of features.  
 
@@ -70,13 +78,30 @@ Auto-weighting in the case of logistic regression caused a dip in precision and 
 
 The other algorithms were tuned experimentally, with unremarkable improvement.
 
+#### performance before and after adding new features
+
+Usual Features(feature selection was done till the best precision and recall values were obtained):
+
+| Classifier              | Precision | Recall    | Features  |
+| ----------------------- | --------: | --------: | --------: |
+| Logistic Regression     |     0.367 |     0.224 |        12 |
+| K-means Clustering, K=2 |     0.427 |     0.307 |        8  |
+
+New Features:
+| Classifier              | Precision | Recall    | Features  |
+| ----------------------- | --------: | --------: | --------: |
+| Logistic Regression     |     0.422 |     0.281 |        12 |
+| K-means Clustering, K=2 |     0.343 |     0.346 |        8  |
+
+There is a high increase in precision and recall in Logistic Regression and a good rise in recall in K-means. Hence, using the new features is justifiable.
+
 > What is validation, and what's a classic mistake you can make if you do it wrong? How did you validate your analysis?
 
 Validation is performed to ensure that a machine learning algorithm generalizes well. The classic problem that can occur is over-fitting. This happens when we overfit the training data and perform really well in it due to which there is a considerable dip in the performance in the other two datsets(cross validation and testing dataset).
 
 I validated my result using two techniques
 - bootstrapping (cleaner.py)
-- k fold method
+- k fold method (mytester.py)
 
 > Give at least 2 evaluation metrics, and your average performance for each of them. Explain an interpretation of your metrics that says something human-understandable about your algorithm's performance.
 
@@ -86,24 +111,25 @@ I am using precision and recall as the evaluation metric.
 
 I did not choose accuracy because with such a small dataset using it would mean that a simple heurestic with all data marked false would give an accuracy of more than 85%
 
-*Validation 1 (Stratified K-folds, K=3)*
+
+*Validation 1 randomised sampling(n=1000)*
 
 | Classifier              | Precision | Recall    | Features  |
 | ----------------------- | --------: | --------: | --------: |
-| Logistic Regression     |     0.422 |     0.170 |        11 |
-| K-means Clustering, K=2 |     0.176 |     0.062 |        11 |
+| Logistic Regression     |     0.422 |     0.281 |        12 |
+| K-means Clustering, K=2 |     0.343 |     0.346 |        8  |
 
 
-
-*Validation 2 randomised sampling(n=1000)*
+*Validation 2 (Stratified K-folds, K=3)* (highest value taken after many runs)
 
 | Classifier              | Precision | Recall    | Features  |
 | ----------------------- | --------: | --------: | --------: |
-| Logistic Regression     |     0.329 |     0.209 |        11 |
-| K-means Clustering, K=2 |     0.315 |     0.375 |        11 |
+| Logistic Regression     |     0.583 |     0.333 |        12 |
+| K-means Clustering, K=2 |     0.431 |     0.500 |        8  |
 
 Both algorithms do well inspite of the dataset being noisy.
-Let us understand what the values are actually speaking to us. Now, in terms of precision and recall you would want a hgh recall in such a case. Simply, because you want to be suspecting people. Having a high precision would mean that we are looking for too strict of a conditions to flag an individual. Hence, recall plays a high role in such a case.
+
+Let us understand what the values are actually speaking to us. Now, in terms of precision and recall you would want a high recall in such a case. Simply, because you want to be suspecting people. Having a high precision would mean that we are looking for too strict of a conditions to flag an individual. Hence, recall plays a high role in such a case.
 
 ## Conclusion
 The dataset was sparse and most algorithms will perform well only if given a decent number of data to learn. Had there been a large dataset random forest would also work very well. However, I am more interested in what a classic anomaly detection system would do in such a case. A simple combination of
