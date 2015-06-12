@@ -88,6 +88,7 @@ Usual Features(feature selection was done till the best precision and recall val
 | K-means Clustering, K=2 |     0.427 |     0.307 |        8  |
 
 New Features:
+
 | Classifier              | Precision | Recall    | Features  |
 | ----------------------- | --------: | --------: | --------: |
 | Logistic Regression     |     0.422 |     0.281 |        12 |
