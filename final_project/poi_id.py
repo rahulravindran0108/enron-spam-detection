@@ -39,9 +39,14 @@ features_list_financial = [
  ]
 
 final_features = [target_label]+features_list_email+features_list_financial
-
 ### Load the dictionary containing the dataset
 data_dict = pickle.load(open("final_project_dataset.pkl", "r") )
+
+
+
+
+
+
 
 #cleaner.create_csv('data.csv',data_dict)
 
@@ -49,18 +54,44 @@ data_dict = pickle.load(open("final_project_dataset.pkl", "r") )
 outlier_keys = ['TOTAL', 'THE TRAVEL AGENCY IN THE PARK', 'LOCKHART EUGENE E']
 cleaner.remove_keys(data_dict,outlier_keys)
 
+
+def dict_to_list(key,normalizer):
+    new_list=[]
+
+    for i in data_dict:
+        if data_dict[i][key]=="NaN" or data_dict[i][normalizer]=="NaN":
+            new_list.append(0.)
+        elif data_dict[i][key]>=0:
+            new_list.append(float(data_dict[i][key])/float(data_dict[i][normalizer]))
+    return new_list
+
+### create two lists of new features
+fraction_from_poi_email=dict_to_list("from_poi_to_this_person","to_messages")
+fraction_to_poi_email=dict_to_list("from_this_person_to_poi","from_messages")
+
+### insert new features into data_dict
+count=0
+for i in data_dict:
+    data_dict[i]["fraction_from_poi_email"]=fraction_from_poi_email[count]
+    data_dict[i]["fraction_to_poi_email"]=fraction_to_poi_email[count]
+    count +=1
+
 my_dataset = copy(data_dict)
 my_features = copy(final_features)
+
 cleaner.add_financial_aggregate(my_dataset, my_features)
 cleaner.add_email_interaction(my_dataset, my_features)
 
-#get k best features
-num_features = 11
+#get k best features for logisctic regression
+num_features = 14
 best_features = cleaner.get_k_best(my_dataset, my_features, num_features)
-my_features = [target_label] + best_features.keys()+['email_interaction']
+my_features = [target_label] + best_features.keys()+['fraction_from_poi_email','fraction_to_poi_email']
 
-#
-# add two new features
+
+#get k best features for K-means
+#num_features = 6
+#best_features = cleaner.get_k_best(my_dataset, my_features, num_features)
+#my_features = [target_label] + best_features.keys()+['fraction_from_poi_email','fraction_to_poi_email']
 
 
 
@@ -128,13 +159,13 @@ g_clf = SGDClassifier(loss='log')
 
 
 ### Selected Classifiers Evaluation
-cleaner.evaluate_clf(l_clf, features, labels)
-#cleaner.evaluate_clf(k_clf, features, labels)
 
-#test_classifier(k_clf, my_dataset, my_features)
-
-### Dump your classifier, dataset, and features_list so 
-### anyone can run/check your results.
 pickle.dump(l_clf, open("my_classifier.pkl", "w"))
 pickle.dump(my_dataset, open("my_dataset.pkl", "w"))
 pickle.dump(my_features, open("my_feature_list.pkl", "w"))
+
+#stratified k fold
+#cleaner.stratified_k_fold(l_clf,features,labels)
+
+#randomized Sampling
+cleaner.evaluate_clf(l_clf, features, labels)

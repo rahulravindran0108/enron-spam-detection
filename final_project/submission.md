@@ -1,6 +1,7 @@
 ---
 output: pdf_document
 ---
+
 ## Identifying Fraud from Enron Emails and Financial Data
 
 ### Introduction
@@ -30,29 +31,73 @@ After cleaning the data only 143 records remained.
 
 > What features did you end up using in your POI identifier, and what selection process did you use to pick them? Did you have to do any scaling? Why or why not? As part of the assignment, you should attempt to engineer your own feature that doesn't come ready-made in the dataset--explain what feature you tried to make, and the rationale behind it. If you used an algorithm like a decision tree, please also give the feature importances of the features that you use.
 
-To pick best features, I used the select k best features of scikit learn. After trying different K values, I decided to go with K value as 8 as it gave the best performance. Folling is the list of top 8 features I selected. The K-best approach is an automated univariate feature selection algorithm, and in using it.
+To pick best features, I used the select k best features of scikit learn. After trying different K values, The K-best approach is an automated univariate feature selection algorithm, and in using it. I decided to go with two algorithms namely K-means clustering and Logistic Regression. In, both cases I had to use different number of features to get the required result
 
 ```
-'exercised_stock_options' : 24.81
-'total_stock_value' : 24.18
-'bonus' : 20.79
-'salary' - 18.28
-'deferred_income' : 11.45
-'long_term_incentive' : 9.92
-'restricted_stock' : 9.21
-'total_payments' - 8.77
-
+'salary': 18.289684043404513
+'email_interaction':5.3993702880944232
+'total_payments':5.3993702880944232
+'loan_advances':8.7727777300916792
+'bonus':7.1840556582887247
+'financial_aggregate':20.792252047181535
+'total_stock_value':15.971747347749965
+'shared_receipt_with_poi':24.182898678566879
+'from_poi_to_this_person':8.589420731682381
+'exercised_stock_options':8.589420731682381
+'deferred_income':5.2434497133749582
+'expenses':24.815079733218194
+'restricted_stock':11.458476579280369
+'long_term_incentive':6.0941733106389453
+'fraction_from_poi_email':9.2128106219771002
+'fraction_to_poi_email':9.9221860131898225
 ```
-These features did not include any email features. Therefore I decided to go with shared_receipt_with_poi.
 
-In order to include two more features that would represent an aggregate calue for both financial and email features, I decided to add two more features, they are as follows:
+For K-means clustering I used a total of 8 features
+```
+'salary':18.289684043404513
+'bonus':20.792252047181535
+'financial_aggregate':15.971747347749965
+'total_stock_value':24.182898678566879
+'exercised_stock_options':24.815079733218194
+'deferred_income':11.458476579280369
+'fraction_from_poi_email':9.2128106219771002
+'fraction_to_poi_email':9.9221860131898225
+```
+The feature:email_interaction did decreased both precision to recall considerably in the cas eof K-means clustering and hence it wasn't used.
+
+From the above features, I added a total of 4 new features which increased both the recall and precision of Logistic Regression.They are as follows:
 
 - email_interaction_ratio: which was a ratio of the total number of emails to and from a POI to the total emails sent or received.  
 - financial_aggregate: This was the combined sum of exercised_stock_options, salary, and total_stock_value. This captured both liquid and semi solid wealth an individual has. 
+- fraction_from_poi_mail: Ration of mails received from poi to total received mail
+- fraction_to_poi_mail: Ratio of mails sent to poi to the toal mails sent
+
+### justifition
+
+After testing the k value for financial aggregate I got the following: 15.971747347749965 Thus it is one of the significant features contributing to precision and recall. similarly with the new features i.e 
+
+- 'fraction_from_poi_email':9.2128106219771002
+- 'fraction_to_poi_email':9.9221860131898225
+
+Recall for Logistic Regression increased above 0.3.
+
+
+Usual Features(feature selection was done till the best precision and recall values were obtained):
+
+| Classifier              | Precision | Recall    | Features  |
+| ----------------------- | --------: | --------: | --------: |
+| Logistic Regression     |     0.367 |     0.224 |        12 |
+| K-means Clustering, K=2 |     0.427 |     0.307 |        5  |
+
+New Features:
+
+| Classifier              | Precision | Recall    | Features  |
+| ----------------------- | --------: | --------: | --------: |
+| Logistic Regression     |     0.317 |     0.300 |        16 |
+| K-means Clustering, K=2 |     0.340 |     0.374 |        8  |
+
 
 I scaled all features using a min-max scaler. This ensures features are evenly balanced and overcomes the disparity due to the units of financial and email features.
-
-Thus after this step we have a total of 11 features to go ahead with.
 
 > What algorithm did you end up using?  What other one(s) did you try?
 
@@ -76,31 +121,31 @@ Validation is performed to ensure that a machine learning algorithm generalizes 
 
 I validated my result using two techniques
 - bootstrapping (cleaner.py)
-- k fold method
+- k fold method (run mytester to get the results from k fold method)
 
 > Give at least 2 evaluation metrics, and your average performance for each of them. Explain an interpretation of your metrics that says something human-understandable about your algorithm's performance.
 
 I am using precision and recall as the evaluation metric. 
-- Precision: The ratio of true positives to the records that are actually POIs. This describes the occurrence of false alarms
-- Recall: captures the ratio of true positives to the records flagged as POIs, which describes sensitivity.
+- Precision: The precision can be interpreted as the likelihood that a person who is identified as a POI is actually a true POI
+- Recall:  Recall measures how likely it is that, given that there???s a POI in the test set, this identifier would flag him or her
 
 I did not choose accuracy because with such a small dataset using it would mean that a simple heurestic with all data marked false would give an accuracy of more than 85%
 
-*Validation 1 (Stratified K-folds, K=3)*
+*Validation 1 (Stratified K-folds, K=3) Run mytester for this* 
 
 | Classifier              | Precision | Recall    | Features  |
 | ----------------------- | --------: | --------: | --------: |
-| Logistic Regression     |     0.422 |     0.170 |        11 |
-| K-means Clustering, K=2 |     0.176 |     0.062 |        11 |
+| Logistic Regression     |     0.394 |     0.320 |        16 |
+| K-means Clustering, K=2 |     0.372 |     0.363 |        8  |
 
 
 
-*Validation 2 randomised sampling(n=1000)*
+*Validation 2 randomised sampling(n=10000)*
 
 | Classifier              | Precision | Recall    | Features  |
 | ----------------------- | --------: | --------: | --------: |
-| Logistic Regression     |     0.329 |     0.209 |        11 |
-| K-means Clustering, K=2 |     0.315 |     0.375 |        11 |
+| Logistic Regression     |     0.317 |     0.300 |        16 |
+| K-means Clustering, K=2 |     0.340 |     0.374 |        8  |
 
 Both algorithms do well inspite of the dataset being noisy.
 Let us understand what the values are actually speaking to us. Now, in terms of precision and recall you would want a hgh recall in such a case. Simply, because you want to be suspecting people. Having a high precision would mean that we are looking for too strict of a conditions to flag an individual. Hence, recall plays a high role in such a case.

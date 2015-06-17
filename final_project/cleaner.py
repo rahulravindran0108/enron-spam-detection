@@ -3,6 +3,7 @@ from sklearn.feature_selection import SelectKBest
 import sys
 from numpy import mean
 from sklearn import cross_validation
+from sklearn.cross_validation import StratifiedKFold
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 sys.path.append("../tools/")
 
@@ -77,7 +78,39 @@ def add_financial_aggregate(data_dict, features_list):
             person['financial_aggregate'] = 'NaN'
     features_list += ['financial_aggregate']
 
-def evaluate_clf(clf, features, labels, num_iters=1000, test_size=0.3):
+def stratified_k_fold(clf,features,labels):
+        skf = StratifiedKFold( labels, n_folds=3)
+        precisions = []
+        recalls = []
+        for train_idx, test_idx in skf:
+            features_train = []
+            features_test  = []
+            labels_train   = []
+            labels_test    = []
+            for ii in train_idx:
+                features_train.append( features[ii] )
+                labels_train.append( labels[ii] )
+            for jj in test_idx:
+                features_test.append( features[jj] )
+                labels_test.append( labels[jj] )
+
+            ### fit the classifier using training set, and test on test set
+            clf.fit(features_train, labels_train)
+            pred = clf.predict(features_test)
+            #print pred
+
+            ### for each fold, print some metrics
+            print
+            print "precision score: ", precision_score( labels_test, pred )
+            print "recall score: ", recall_score( labels_test, pred )
+
+            precisions.append( precision_score(labels_test, pred) )
+            recalls.append( recall_score(labels_test, pred) )
+        print "average precision: ", sum(precisions)/3.
+        print "average recall: ", sum(recalls)/3.
+
+
+def evaluate_clf(clf, features, labels, num_iters=10000, test_size=0.3):
     print clf
     accuracy = []
     precision = []
