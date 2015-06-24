@@ -6,7 +6,7 @@ import pickle
 sys.path.append("../tools/")
 
 from feature_format import featureFormat, targetFeatureSplit
-from tester import test_classifier, dump_classifier_and_data
+
 
 import cleaner
 ### Task 1: Select what features you'll use.
@@ -80,10 +80,10 @@ my_dataset = copy(data_dict)
 my_features = copy(final_features)
 
 cleaner.add_financial_aggregate(my_dataset, my_features)
-cleaner.add_email_interaction(my_dataset, my_features)
+
 
 #get k best features for logisctic regression
-num_features = 14
+num_features = 13
 best_features = cleaner.get_k_best(my_dataset, my_features, num_features)
 my_features = [target_label] + best_features.keys()+['fraction_from_poi_email','fraction_to_poi_email']
 
@@ -168,4 +168,8 @@ pickle.dump(my_features, open("my_feature_list.pkl", "w"))
 #cleaner.stratified_k_fold(l_clf,features,labels)
 
 #randomized Sampling
+print "First Validation Technique:Randomized Sampling"
 cleaner.evaluate_clf(l_clf, features, labels)
+
+print "Second Validation Tehnique: Stratified K-folds"
+cleaner.stratified_k_fold(l_clf,features,labels)

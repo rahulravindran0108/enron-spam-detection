@@ -33,13 +33,12 @@ After cleaning the data only 143 records remained.
 
 To pick best features, I used the select k best features of scikit learn. After trying different K values, The K-best approach is an automated univariate feature selection algorithm, and in using it. I decided to go with two algorithms namely K-means clustering and Logistic Regression. In, both cases I had to use different number of features to get the required result
 
+For Logistic Regeression, I went ahead with 12 features as shown below and later after adding my engineered features, a total of 15 features
 ```
 'salary': 18.289684043404513
-'email_interaction':5.3993702880944232
 'total_payments':5.3993702880944232
 'loan_advances':8.7727777300916792
 'bonus':7.1840556582887247
-'financial_aggregate':20.792252047181535
 'total_stock_value':15.971747347749965
 'shared_receipt_with_poi':24.182898678566879
 'from_poi_to_this_person':8.589420731682381
@@ -48,26 +47,29 @@ To pick best features, I used the select k best features of scikit learn. After 
 'expenses':24.815079733218194
 'restricted_stock':11.458476579280369
 'long_term_incentive':6.0941733106389453
-'fraction_from_poi_email':9.2128106219771002
-'fraction_to_poi_email':9.9221860131898225
+'fraction_from_poi_email':9.2128106219771002    (engineered)
+'fraction_to_poi_email':9.9221860131898225      (engineered)
+'financial_aggregate':20.792252047181535   (engineered)
 ```
 
-For K-means clustering I used a total of 8 features
+
+
+For K-means clustering I used a total of 8 features(after engineereing).
 ```
 'salary':18.289684043404513
 'bonus':20.792252047181535
-'financial_aggregate':15.971747347749965
 'total_stock_value':24.182898678566879
 'exercised_stock_options':24.815079733218194
 'deferred_income':11.458476579280369
-'fraction_from_poi_email':9.2128106219771002
-'fraction_to_poi_email':9.9221860131898225
+'financial_aggregate':15.971747347749965    (engineered)
+'fraction_from_poi_email':9.2128106219771002  (engineered)
+'fraction_to_poi_email':9.9221860131898225    (engineered)
 ```
-The feature:email_interaction did decreased both precision to recall considerably in the cas eof K-means clustering and hence it wasn't used.
 
-From the above features, I added a total of 4 new features which increased both the recall and precision of Logistic Regression.They are as follows:
 
-- email_interaction_ratio: which was a ratio of the total number of emails to and from a POI to the total emails sent or received.  
+From the above features, I added a total of 3 new features which increased both the recall and precision of Logistic Regression.They are as follows:
+
+
 - financial_aggregate: This was the combined sum of exercised_stock_options, salary, and total_stock_value. This captured both liquid and semi solid wealth an individual has. 
 - fraction_from_poi_mail: Ration of mails received from poi to total received mail
 - fraction_to_poi_mail: Ratio of mails sent to poi to the toal mails sent
@@ -93,7 +95,7 @@ New Features:
 
 | Classifier              | Precision | Recall    | Features  |
 | ----------------------- | --------: | --------: | --------: |
-| Logistic Regression     |     0.317 |     0.300 |        16 |
+| Logistic Regression     |     0.317 |     0.300 |        15 |
 | K-means Clustering, K=2 |     0.340 |     0.374 |        8  |
 
 
@@ -109,11 +111,13 @@ following were the parameters I tuned:
 - Logistic regression: C (inverse regularization parameter), tol (tolerance), and class_weight (over/undersampling)
 - K-means clustering: tol
 
-K-means clustering was initialized with K (n_clusters) of 2 to represent POI and non-POI clusters. It performed well with the 11 set of features.  
+K-means clustering was initialized with K (n_clusters) of 2 to represent POI and non-POI clusters. It performed well with the 8 set of features.  
 
 Auto-weighting in the case of logistic regression caused a dip in precision and hence I decided to use evenly balanced features.
 
 The other algorithms were tuned experimentally, with unremarkable improvement.
+
+Parameter tuning is important because it helps improve the algorithm perform better. Each algorithm is associated with certain parameters that help wih the learning rate. Just like in the case of gradient descent, it would so happen that if the learning rate is too high we would miss the minima and if it is too small, we might not end up converging.
 
 > What is validation, and what's a classic mistake you can make if you do it wrong? How did you validate your analysis?
 
@@ -135,7 +139,7 @@ I did not choose accuracy because with such a small dataset using it would mean 
 
 | Classifier              | Precision | Recall    | Features  |
 | ----------------------- | --------: | --------: | --------: |
-| Logistic Regression     |     0.394 |     0.320 |        16 |
+| Logistic Regression     |     0.394 |     0.320 |        15 |
 | K-means Clustering, K=2 |     0.372 |     0.363 |        8  |
 
 
@@ -144,7 +148,7 @@ I did not choose accuracy because with such a small dataset using it would mean 
 
 | Classifier              | Precision | Recall    | Features  |
 | ----------------------- | --------: | --------: | --------: |
-| Logistic Regression     |     0.317 |     0.300 |        16 |
+| Logistic Regression     |     0.317 |     0.300 |        15 |
 | K-means Clustering, K=2 |     0.340 |     0.374 |        8  |
 
 Both algorithms do well inspite of the dataset being noisy.

@@ -79,9 +79,13 @@ def add_financial_aggregate(data_dict, features_list):
     features_list += ['financial_aggregate']
 
 def stratified_k_fold(clf,features,labels):
+    average_precisions = []
+    average_recalls = []
+    for i in range(0,1000):
         skf = StratifiedKFold( labels, n_folds=3)
         precisions = []
         recalls = []
+        
         for train_idx, test_idx in skf:
             features_train = []
             features_test  = []
@@ -100,17 +104,22 @@ def stratified_k_fold(clf,features,labels):
             #print pred
 
             ### for each fold, print some metrics
-            print
-            print "precision score: ", precision_score( labels_test, pred )
-            print "recall score: ", recall_score( labels_test, pred )
+            #print
+            #print "precision score: ", precision_score( labels_test, pred )
+            #print "recall score: ", recall_score( labels_test, pred )
 
             precisions.append( precision_score(labels_test, pred) )
             recalls.append( recall_score(labels_test, pred) )
-        print "average precision: ", sum(precisions)/3.
-        print "average recall: ", sum(recalls)/3.
+
+        ### aggregate precision and recall over all folds
+        average_precisions.append(sum(precisions)/3.)
+        average_recalls.append(sum(recalls)/3.)
+        
+    print "average precision:",sum(average_precisions)/300.
+    print "average recall:",sum(average_recalls)/300.
 
 
-def evaluate_clf(clf, features, labels, num_iters=10000, test_size=0.3):
+def evaluate_clf(clf, features, labels, num_iters=1000, test_size=0.3):
     print clf
     accuracy = []
     precision = []
