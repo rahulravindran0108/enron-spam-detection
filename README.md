@@ -1,3 +1,7 @@
+---
+output: pdf_document
+---
+
 ## Identifying Fraud from Enron Emails and Financial Data
 
 ### Introduction
@@ -30,6 +34,9 @@ After cleaning the data only 143 records remained.
 To pick best features, I used the select k best features of scikit learn. After trying different K values, The K-best approach is an automated univariate feature selection algorithm, and in using it. I decided to go with two algorithms namely K-means clustering and Logistic Regression. In, both cases I had to use different number of features to get the required result
 
 For Logistic Regeression, I went ahead with 12 features as shown below and later after adding my engineered features, a total of 15 features
+
+These 12 features were used because of the reason that they gave the best results for precision and recall.
+
 ```
 'salary': 18.289684043404513
 'total_payments':5.3993702880944232
@@ -50,7 +57,8 @@ For Logistic Regeression, I went ahead with 12 features as shown below and later
 
 
 
-For K-means clustering I used a total of 8 features(after engineereing).
+For K-means clustering I used a total of 8 features(after engineereing). 5 features were selected before engineering due to the fact that they provided the best precision and recall values.
+
 ```
 'salary':18.289684043404513
 'bonus':20.792252047181535
@@ -101,7 +109,7 @@ I scaled all features using a min-max scaler. This ensures features are evenly b
 
 After having performed various ml related projects during my undergraduate studies, a two class problem usually is best for logistic regression and K-means clustering. K-means clustering with PCA and mahalanobis distance provides a very fortified technique for two class detection. However, I went with logistic regression as my final algorithm.
 
-I tried several algorithms, with a K-means clustering algorithm performing reasonably sufficient. I also tested a support vector machine, a random forest classifier, and stochastic gradient descent. The best reults I got were from logistic regressor.
+I tried several algorithms, with a K-means clustering algorithm performing reasonably sufficient. I also tested a support vector machine, a random forest classifier, and stochastic gradient descent. The best reults I got were from logistic regressor. I used this for the fact that I got a really nice consistency overall in all my validation techniques.
 
 following were the parameters I tuned:
 - Logistic regression: C (inverse regularization parameter), tol (tolerance), and class_weight (over/undersampling)

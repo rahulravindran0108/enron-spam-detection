@@ -6,7 +6,7 @@ import pickle
 sys.path.append("../tools/")
 
 from feature_format import featureFormat, targetFeatureSplit
-
+from udacity_tester import test_classifier
 
 import cleaner
 ### Task 1: Select what features you'll use.
@@ -83,7 +83,7 @@ cleaner.add_financial_aggregate(my_dataset, my_features)
 
 
 #get k best features for logisctic regression
-num_features = 13
+num_features = 10
 best_features = cleaner.get_k_best(my_dataset, my_features, num_features)
 my_features = [target_label] + best_features.keys()+['fraction_from_poi_email','fraction_to_poi_email']
 
@@ -173,3 +173,4 @@ cleaner.evaluate_clf(l_clf, features, labels)
 
 print "Second Validation Tehnique: Stratified K-folds"
 cleaner.stratified_k_fold(l_clf,features,labels)
+
