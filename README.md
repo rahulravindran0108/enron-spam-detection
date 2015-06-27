@@ -37,7 +37,7 @@ The features I went ahead with are as follows(for logistic regression):
 
 Precision: 0.51508	Recall: 0.21350
 
-| Feature                 | Score↑ | Valid |
+| Feature                 | Score??? | Valid |
 | :---------------------- | -----: | ----: |
 | exercised_stock_options | 24.815 |   102 |
 | total_stock_value       | 24.183 |   126 |
@@ -54,7 +54,7 @@ The features I went ahead with Gaussian NB are as follows:
 
 Precision: 0.38355	Recall: 0.31700
 
-| Feature                 | Score↑ | Valid |
+| Feature                 | Score??? | Valid |
 | :---------------------- | -----: | ----: |
 | exercised_stock_options | 24.815 |   102 |
 | total_stock_value       | 24.183 |   126 |
