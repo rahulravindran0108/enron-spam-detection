@@ -31,85 +31,77 @@ After cleaning the data only 143 records remained.
 
 > What features did you end up using in your POI identifier, and what selection process did you use to pick them? Did you have to do any scaling? Why or why not? As part of the assignment, you should attempt to engineer your own feature that doesn't come ready-made in the dataset--explain what feature you tried to make, and the rationale behind it. If you used an algorithm like a decision tree, please also give the feature importances of the features that you use.
 
-To pick best features, I used the select k best features of scikit learn. After trying different K values, The K-best approach is an automated univariate feature selection algorithm, and in using it. I decided to go with two algorithms namely K-means clustering and Logistic Regression. In, both cases I had to use different number of features to get the required result
+To pick best features, I used the select k best features of scikit learn. After trying different K values, The K-best approach is an automated univariate feature selection algorithm, and in using it. I decided to go with two algorithms namely Gaussian NB and Logistic Regression. In, both cases I had to use different number of features to get the required result
 
-For Logistic Regeression, I went ahead with 12 features as shown below and later after adding my engineered features, a total of 15 features
+The features I went ahead with are as follows(for logistic regression):
 
-These 12 features were used because of the reason that they gave the best results for precision and recall.
+Precision: 0.51508	Recall: 0.21350
 
-```
-'salary': 18.289684043404513
-'total_payments':5.3993702880944232
-'loan_advances':8.7727777300916792
-'bonus':7.1840556582887247
-'total_stock_value':15.971747347749965
-'shared_receipt_with_poi':24.182898678566879
-'from_poi_to_this_person':8.589420731682381
-'exercised_stock_options':8.589420731682381
-'deferred_income':5.2434497133749582
-'expenses':24.815079733218194
-'restricted_stock':11.458476579280369
-'long_term_incentive':6.0941733106389453
-'fraction_from_poi_email':9.2128106219771002    (engineered)
-'fraction_to_poi_email':9.9221860131898225      (engineered)
-'financial_aggregate':20.792252047181535   (engineered)
-```
+| Feature                 | Score↑ | Valid |
+| :---------------------- | -----: | ----: |
+| exercised_stock_options | 24.815 |   102 |
+| total_stock_value       | 24.183 |   126 |
+| bonus                   | 20.792 |    82 |
+| salary                  | 18.290 |    95 |
+| deferred_income         | 11.458 |    49 |
+| long_term_incentive     |  9.922 |    66 |
+| restricted_stock        |  9.212 |   110 |
+| total_payments          |  8.772 |   125 |
+| shared_receipt_with_poi |  8.589 |    86 |
+| loan_advances           |  7.184 |     3 |
 
+The features I went ahead with Gaussian NB are as follows:
 
+Precision: 0.38355	Recall: 0.31700
 
-For K-means clustering I used a total of 8 features(after engineereing). 5 features were selected before engineering due to the fact that they provided the best precision and recall values.
+| Feature                 | Score↑ | Valid |
+| :---------------------- | -----: | ----: |
+| exercised_stock_options | 24.815 |   102 |
+| total_stock_value       | 24.183 |   126 |
+| bonus                   | 20.792 |    82 |
+| salary                  | 18.290 |    95 |
+| deferred_income         | 11.458 |    49 |
+| long_term_incentive     |  9.922 |    66 |
+| restricted_stock        |  9.212 |   110 |
+| total_payments          |  8.772 |   125 |
 
-```
-'salary':18.289684043404513
-'bonus':20.792252047181535
-'total_stock_value':24.182898678566879
-'exercised_stock_options':24.815079733218194
-'deferred_income':11.458476579280369
-'financial_aggregate':15.971747347749965    (engineered)
-'fraction_from_poi_email':9.2128106219771002  (engineered)
-'fraction_to_poi_email':9.9221860131898225    (engineered)
-```
-
-
-From the above features, I added a total of 3 new features which increased both the recall and precision of Logistic Regression.They are as follows:
-
+It is to be noted that different k-best values were tried from 5-15 to get the maximum result. Average recall values were found to be between 20-23 in the case of Logistic Regression and for the case of gaussian NB between 25-30. In order to inrease this value it was necessary to engineer new features. I went ahead by adding two new features.
 
 - financial_aggregate: This was the combined sum of exercised_stock_options, salary, and total_stock_value. This captured both liquid and semi solid wealth an individual has. 
-- fraction_from_poi_mail: Ration of mails received from poi to total received mail
-- fraction_to_poi_mail: Ratio of mails sent to poi to the toal mails sent
+- email_interaction which was a ratio of the total number of emails to and from a POI to the total number of emails sent or received
+
 
 ### justifition
 
-After testing the k value for financial aggregate I got the following: 15.971747347749965 Thus it is one of the significant features contributing to precision and recall. similarly with the new features i.e 
+The k-best values for the new feature are as follows:
 
-- 'fraction_from_poi_email':9.2128106219771002
-- 'fraction_to_poi_email':9.9221860131898225
+- financial_aggregate:15.971747347749965
+- email_interaction:8.7727777300916792
 
-Recall for Logistic Regression increased above 0.3.
-
-
-Usual Features(feature selection was done till the best precision and recall values were obtained):
 
 | Classifier              | Precision | Recall    | Features  |
 | ----------------------- | --------: | --------: | --------: |
-| Logistic Regression     |     0.367 |     0.224 |        12 |
-| K-means Clustering, K=2 |     0.427 |     0.307 |        5  |
+| Logistic Regression     |     0.515 |     0.213 |        10 |
+| Gaussian NB             |     0.383 |     0.317 |        8  |
 
-New Features:
+
+New Features(the new engineered features):
 
 | Classifier              | Precision | Recall    | Features  |
 | ----------------------- | --------: | --------: | --------: |
-| Logistic Regression     |     0.317 |     0.300 |        15 |
-| K-means Clustering, K=2 |     0.340 |     0.374 |        8  |
+| Logistic Regression     |     0.536 |     0.301 |        12 |
+| Gaussian NB             |     0.340 |     0.365 |       10  |
 
 
 I scaled all features using a min-max scaler. This ensures features are evenly balanced and overcomes the disparity due to the units of financial and email features.
 
+The values above justify the usage of my engineered features with a significant increase on both recall and precision value.
+
 > What algorithm did you end up using?  What other one(s) did you try?
 
-After having performed various ml related projects during my undergraduate studies, a two class problem usually is best for logistic regression and K-means clustering. K-means clustering with PCA and mahalanobis distance provides a very fortified technique for two class detection. However, I went with logistic regression as my final algorithm.
+After having performed various ml related projects during my undergraduate studies, a two class problem usually is best for logistic regression and K-means clustering. K-means clustering with PCA and mahalanobis distance provides a very fortified technique for two class detection. However, I went with Gaussian NB as my final algorithm due to the fact that it provided me with great results which were consistent throughout my test cases.
 
-I tried several algorithms, with a K-means clustering algorithm performing reasonably sufficient. I also tested a support vector machine, a random forest classifier, and stochastic gradient descent. The best reults I got were from logistic regressor. I used this for the fact that I got a really nice consistency overall in all my validation techniques.
+I tried several algorithms, with a K-means clustering algorithm also performing well. I also tested a support vector machine, a random forest classifier, and stochastic gradient descent. The best reults I got were from gaussian NB. I used this for the fact that I got a really nice consistency overall in all my validation techniques.
 
 following were the parameters I tuned:
 - Logistic regression: C (inverse regularization parameter), tol (tolerance), and class_weight (over/undersampling)
@@ -119,7 +111,7 @@ K-means clustering was initialized with K (n_clusters) of 2 to represent POI and
 
 Auto-weighting in the case of logistic regression caused a dip in precision and hence I decided to use evenly balanced features.
 
-The other algorithms were tuned experimentally, with unremarkable improvement.
+Gaussian NB perfomed extreemly well because this problem is a two class problem and GNB works very well in such cases
 
 Parameter tuning is important because it helps improve the algorithm perform better. Each algorithm is associated with certain parameters that help wih the learning rate. Just like in the case of gradient descent, it would so happen that if the learning rate is too high we would miss the minima and if it is too small, we might not end up converging.
 
@@ -129,7 +121,7 @@ Validation is performed to ensure that a machine learning algorithm generalizes 
 
 I validated my result using two techniques
 - bootstrapping (cleaner.py)
-- k fold method (run mytester to get the results from k fold method)
+- k fold method (cleaner.py)
 
 > Give at least 2 evaluation metrics, and your average performance for each of them. Explain an interpretation of your metrics that says something human-understandable about your algorithm's performance.
 
@@ -139,21 +131,30 @@ I am using precision and recall as the evaluation metric.
 
 I did not choose accuracy because with such a small dataset using it would mean that a simple heurestic with all data marked false would give an accuracy of more than 85%
 
-*Validation 1 (Stratified K-folds, K=3) Run mytester for this* 
+*Validation 1 (Stratified K-folds, K=3) 
 
 | Classifier              | Precision | Recall    | Features  |
 | ----------------------- | --------: | --------: | --------: |
-| Logistic Regression     |     0.394 |     0.320 |        15 |
-| K-means Clustering, K=2 |     0.372 |     0.363 |        8  |
+| Logistic Regression     |     0.416 |     0.25  |        12 |
+| Gaussian NB             |     0.666 |     0.416 |       10  |
 
 
 
-*Validation 2 randomised sampling(n=10000)*
+*Validation 2 randomised sampling(n=1000)*
 
 | Classifier              | Precision | Recall    | Features  |
 | ----------------------- | --------: | --------: | --------: |
-| Logistic Regression     |     0.317 |     0.300 |        15 |
-| K-means Clustering, K=2 |     0.340 |     0.374 |        8  |
+| Logistic Regression     |     0.401 |     0.275 |        12 |
+| Gaussian NB             |     0.386 |     0.344 |        10 |
+
+*Validation 3 Udacity tester*
+
+| Classifier              | Precision | Recall    | Features  |
+| ----------------------- | --------: | --------: | --------: |
+| Logistic Regression     |     0.536 |     0.301 |        12 |
+| Gaussian NB             |     0.340 |     0.365 |       10  |
+
+The level of consistency shown by Gaussian NB in all three validation technique is much more than logistic regression. Hence I went ahead with Gaussian NB.
 
 Both algorithms do well inspite of the dataset being noisy.
 Let us understand what the values are actually speaking to us. Now, in terms of precision and recall you would want a hgh recall in such a case. Simply, because you want to be suspecting people. Having a high precision would mean that we are looking for too strict of a conditions to flag an individual. Hence, recall plays a high role in such a case.

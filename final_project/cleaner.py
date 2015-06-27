@@ -79,44 +79,37 @@ def add_financial_aggregate(data_dict, features_list):
     features_list += ['financial_aggregate']
 
 def stratified_k_fold(clf,features,labels):
-    average_precisions = []
-    average_recalls = []
-    for i in range(0,1000):
-        skf = StratifiedKFold( labels, n_folds=3)
-        precisions = []
-        recalls = []
-        
-        for train_idx, test_idx in skf:
-            features_train = []
-            features_test  = []
-            labels_train   = []
-            labels_test    = []
-            for ii in train_idx:
-                features_train.append( features[ii] )
-                labels_train.append( labels[ii] )
-            for jj in test_idx:
-                features_test.append( features[jj] )
-                labels_test.append( labels[jj] )
+    skf = StratifiedKFold( labels, n_folds=3 )
+    precisions = []
+    recalls = []
+    for train_idx, test_idx in skf:
+        features_train = []
+        features_test  = []
+        labels_train   = []
+        labels_test    = []
+        for ii in train_idx:
+            features_train.append( features[ii] )
+            labels_train.append( labels[ii] )
+        for jj in test_idx:
+            features_test.append( features[jj] )
+            labels_test.append( labels[jj] )
 
-            ### fit the classifier using training set, and test on test set
-            clf.fit(features_train, labels_train)
-            pred = clf.predict(features_test)
-            #print pred
+        ### fit the classifier using training set, and test on test set
+        clf.fit(features_train, labels_train)
+        pred = clf.predict(features_test)
 
-            ### for each fold, print some metrics
-            #print
-            #print "precision score: ", precision_score( labels_test, pred )
-            #print "recall score: ", recall_score( labels_test, pred )
 
-            precisions.append( precision_score(labels_test, pred) )
-            recalls.append( recall_score(labels_test, pred) )
+        ### for each fold, print some metrics
+        print
+        print "precision score: ", precision_score( labels_test, pred )
+        print "recall score: ", recall_score( labels_test, pred )
 
-        ### aggregate precision and recall over all folds
-        average_precisions.append(sum(precisions)/3.)
-        average_recalls.append(sum(recalls)/3.)
-        
-    print "average precision:",sum(average_precisions)/300.
-    print "average recall:",sum(average_recalls)/300.
+        precisions.append( precision_score(labels_test, pred) )
+        recalls.append( recall_score(labels_test, pred) )
+
+    ### aggregate precision and recall over all folds
+    print "average precision: ", sum(precisions)/2.
+    print "average recall: ", sum(recalls)/2.
 
 
 def evaluate_clf(clf, features, labels, num_iters=1000, test_size=0.3):
